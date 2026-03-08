@@ -355,7 +355,7 @@ export default function App() {
             {/* Header */}
             <header style={{
               display:"flex", alignItems:"center", justifyContent:"space-between",
-              padding:"14px 36px", flexShrink:0
+              padding:"10px 36px", flexShrink:0
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
               <h2 style={{
@@ -440,7 +440,7 @@ onTouchEnd={() => {
                 setRotY(rotYRef.current);
                 }}
             >
-              <div style={{position:"absolute",bottom:12,left:"50%",transform:"translateX(-50%)",
+              <div style={{position:"absolute",bottom:6,left:"50%",transform:"translateX(-50%)",
                 fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:9,
                 color:"#bbb",letterSpacing:"0.12em",pointerEvents:"none",zIndex:1,whiteSpace:"nowrap"}}>
                 click and drag to browse through confessions
@@ -511,7 +511,7 @@ onTouchEnd={() => {
             </div>
 
             {/* Filter tags */}
-            <div style={{padding:"4px 36px 8px", flexShrink:0}}>
+            <div style={{padding:"2px 36px 6px", flexShrink:0}}>
               <div style={{position:"relative"}}>
               <div style={{position:"absolute",right:0,top:0,bottom:0,width:48,background:"linear-gradient(to right, transparent, #fff)",pointerEvents:"none",zIndex:1}}/>
               <div className="prow" style={{justifyContent:"center"}}>
