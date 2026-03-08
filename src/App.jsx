@@ -407,6 +407,33 @@ export default function App() {
                 rafRef.current = requestAnimationFrame(coast);
               }}
               onMouseLeave={() => { mouseDownX.current = null; }}
+              onTouchStart={e => {
+  cancelAnimationFrame(rafRef.current);
+  mouseDownX.current = e.touches[0].clientX;
+  lastX.current = e.touches[0].clientX;
+  velRef.current = 0;
+  dragDist.current = 0;
+}}
+onTouchMove={e => {
+  if (mouseDownX.current === null) return;
+  const dx = e.touches[0].clientX - lastX.current;
+  dragDist.current += Math.abs(dx);
+  velRef.current = dx * 0.5;
+  rotYRef.current += dx * 0.5;
+  setRotY(rotYRef.current);
+  lastX.current = e.touches[0].clientX;
+}}
+onTouchEnd={() => {
+  mouseDownX.current = null;
+  const coast = () => {
+    if (Math.abs(velRef.current) < 0.05) return;
+    velRef.current *= 0.96;
+    rotYRef.current += velRef.current;
+    setRotY(rotYRef.current);
+    rafRef.current = requestAnimationFrame(coast);
+  };
+  rafRef.current = requestAnimationFrame(coast);
+}}
               onWheel={e => {
                 cancelAnimationFrame(rafRef.current);
                 rotYRef.current += e.deltaX * 0.8 || e.deltaY * 0.8;
