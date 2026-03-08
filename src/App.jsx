@@ -261,7 +261,7 @@ export default function App() {
           will-change: transform;
         }
         .acc-card:hover { box-shadow: 0 18px 50px rgba(0,0,0,0.14) !important; }
-        .prow { display:flex; gap:6px; overflow-x:auto; flex-wrap:wrap; scrollbar-width:none; }
+        .prow { display:flex; gap:6px; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; padding-bottom:4px; }
         @keyframes slideIn {
           from { opacity:0; transform:translateY(10px); }
           to   { opacity:1; transform:translateY(0); }
