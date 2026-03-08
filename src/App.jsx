@@ -378,7 +378,7 @@ export default function App() {
 
             {/* 3D carousel — math computed, no preserve-3d so clicks work */}
             <div
-              style={{flex:1, position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
+              style={height:"40vh", position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}
               onMouseDown={e => {
                 cancelAnimationFrame(rafRef.current);
                 mouseDownX.current = e.clientX;
