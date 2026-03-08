@@ -407,6 +407,11 @@ export default function App() {
                 rafRef.current = requestAnimationFrame(coast);
               }}
               onMouseLeave={() => { mouseDownX.current = null; }}
+              onWheel={e => {
+                cancelAnimationFrame(rafRef.current);
+                rotYRef.current += e.deltaX * 0.8 || e.deltaY * 0.8;
+                setRotY(rotYRef.current);
+                }}
             >
               <div style={{position:"absolute",bottom:12,left:"50%",transform:"translateX(-50%)",
                 fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:9,
