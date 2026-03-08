@@ -222,7 +222,6 @@ export default function App() {
       setCfess([data, ...confessions]);
     }
     setNewText(""); setNewEmo(""); setSub(true);
-    setTimeout(() => { setSub(false); setScreen("shelf"); }, 2200);
   };
 
   // 3D carousel — computed manually, no preserve-3d so clicks work
@@ -275,6 +274,35 @@ export default function App() {
           from { opacity:0; transform:translateY(24px) scale(0.97); }
           to   { opacity:1; transform:translateY(0) scale(1); }
         }
+        @keyframes petalWiggle {
+          0%   { transform: translateY(0px) rotate(0deg) translateX(0px); opacity:1; }
+          25%  { transform: translateY(-28vh) rotate(90deg) translateX(12px); opacity:1; }
+          50%  { transform: translateY(-55vh) rotate(200deg) translateX(-8px); opacity:0.8; }
+          75%  { transform: translateY(-80vh) rotate(300deg) translateX(14px); opacity:0.4; }
+          100% { transform: translateY(-110vh) rotate(400deg) translateX(-6px); opacity:0; }
+        }
+        @keyframes confessReveal {
+          0%   { opacity:0; transform: translateY(22px); }
+          100% { opacity:1; transform: translateY(0); }
+        }
+        @keyframes handPresent {
+          0%   { transform: translateY(240px) scale(0.5) rotateX(-35deg); opacity: 0; }
+          20%  { opacity: 1; }
+          62%  { transform: translateY(-20px) scale(1.1) rotateX(7deg); opacity: 1; }
+          76%  { transform: translateY(7px) scale(0.97) rotateX(-3deg); }
+          88%  { transform: translateY(-5px) scale(1.02) rotateX(1deg); }
+          100% { transform: translateY(0px) scale(1) rotateX(0deg); opacity: 1; }
+        }
+        @keyframes handHold {
+          0%,100% { transform: translateY(0px) rotateX(0deg); }
+          50%     { transform: translateY(-8px) rotateX(-4deg); }
+        }
+        .hand-wrap    { perspective: 650px; perspective-origin: 50% 75%; }
+        .hand-present { animation: handPresent 1.1s cubic-bezier(.22,1.18,.36,1) forwards,
+                                   handHold 3.4s ease-in-out 1.2s infinite;
+                        transform-origin: bottom center; }
+        .petal { position:fixed; bottom:-20px; pointer-events:none; animation: petalWiggle 3s ease-in forwards; }
+        .confess-word { display:inline-block; animation: confessReveal 0.5s both; }
       `}</style>
 
       <div style={{minHeight:"100vh", background:"#fff", fontFamily:"'Playfair Display', serif"}}>
@@ -655,12 +683,89 @@ export default function App() {
             </header>
             <div style={{maxWidth:480,margin:"0 auto",padding:"32px 28px 80px"}}>
               {submitted ? (
-                <div style={{textAlign:"center",paddingTop:80}}>
-                  <p style={{fontSize:32,color:"#1a1a1a",marginBottom:12,fontWeight:400}}>left behind.</p>
-                  <p style={{fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:11,
-                    color:"#bbb",letterSpacing:"0.06em"}}>
+                <div style={{textAlign:"center",paddingTop:60,position:"relative"}}>
+                  {/* floating petals */}
+                  {[...Array(14)].map((_,i) => {
+                    const colors = ["#9B2A2A","#C47A7A","#FAF7F0","#d9cfc0","#9B2A2A","#e8c4b8"];
+                    const shapes = ["●","✦","♥","✿","◆","·"];
+                    const size = 8 + (i * 0.7);
+                    const left = 5 + (i / 13) * 90;
+                    const delay = i * 0.15;
+                    const dur = 2.2 + (i % 3) * 0.5;
+                    return (
+                      <span key={i} className="petal" style={{
+                        left:`${left}%`,
+                        fontSize:size,
+                        color: colors[i % colors.length],
+                        animationDelay:`${delay}s`,
+                        animationDuration:`${dur}s`,
+                      }}>{shapes[i % shapes.length]}</span>
+                    );
+                  })}
+
+                  {/* pixel flower with entrance animation */}
+                  <div className="hand-wrap" style={{display:"flex", justifyContent:"center", marginBottom:20}}>
+                    <div className="hand-present" style={{transformOrigin:"center bottom"}}>
+                      <PixelFlower size={96} />
+                    </div>
+                  </div>
+
+                  {/* "left behind." word by word */}
+                  <p style={{fontSize:34,color:"#1a1a1a",marginBottom:14,fontWeight:400,letterSpacing:"-0.01em"}}>
+                    {"left behind.".split(" ").map((w,i) => (
+                      <span key={i} className="confess-word" style={{animationDelay:`${0.2 + i*0.18}s`, marginRight:"0.25em"}}>
+                        {w}
+                      </span>
+                    ))}
+                  </p>
+
+                  {/* subtitle */}
+                  <p style={{
+                    fontFamily:"'DM Mono',monospace", fontWeight:300, fontSize:11,
+                    color:"#bbb", letterSpacing:"0.08em",
+                    animation:"confessReveal 0.6s 0.7s both"
+                  }}>
                     your confession joins the library
                   </p>
+
+                  {/* CTAs */}
+                  <div style={{
+                    marginTop:40, display:"flex", flexDirection:"column",
+                    alignItems:"center", gap:14,
+                    animation:"confessReveal 0.6s 1s both"
+                  }}>
+                    <button
+                      onClick={() => { setSub(false); setScreen("shelf"); }}
+                      style={{
+                        fontFamily:"'DM Mono',monospace", fontWeight:400,
+                        fontSize:13, letterSpacing:"0.08em",
+                        background:"#1a1a1a", color:"#fff",
+                        padding:"14px 52px", borderRadius:3, border:"none",
+                        cursor:"pointer", transition:"background .18s",
+                        width:240
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background="#333"}
+                      onMouseLeave={e => e.currentTarget.style.background="#1a1a1a"}
+                    >
+                      Explore Confessions
+                    </button>
+                    <button
+                      onClick={() => { setSub(false); setNewText(""); setNewEmo(""); }}
+                      style={{
+                        fontFamily:"'DM Mono',monospace", fontWeight:400,
+                        fontSize:13, letterSpacing:"0.08em",
+                        background:"#fff", color:"#1a1a1a",
+                        padding:"14px 52px", borderRadius:3,
+                        border:"1.5px solid #1a1a1a",
+                        cursor:"pointer", transition:"background .18s",
+                        width:240
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background="#f0f0f0"}
+                      onMouseLeave={e => e.currentTarget.style.background="#fff"}
+                    >
+                      Add Another
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
