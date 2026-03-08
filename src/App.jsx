@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabase";
 
 const EMOTIONS = [
   { id:"regret",    label:"Regret",    color:"#C4726A", pastel:"#E8A89C" },
@@ -32,8 +33,6 @@ const SEED = [
   { id:"s10", text:"I'm proud of something I can never tell anyone about.", emotion:"pride",    reactions:{candle:144,wave:22,bloom:99,flame:33} },
   { id:"s11", text:"I wanted their life so badly I stopped living mine.", emotion:"envy",     reactions:{candle:88,wave:77,bloom:44,flame:6}   },
   { id:"s12", text:"Letting go of that friendship was the most adult and devastating thing I've done.", emotion:"relief", reactions:{candle:111,wave:73,bloom:88,flame:3} },
-  { id:"s13", text:"Something happened to me that I have never spoken out loud. Not once. Not to anyone.", emotion:"deepdark", reactions:{candle:312,wave:188,bloom:144,flame:4} },
-  { id:"s14", text:"I spent years convincing myself it was normal. It wasn't.", emotion:"deepdark", reactions:{candle:278,wave:201,bloom:99,flame:2} },
 ];
 const getEm = (id) => EMOTIONS.find(e => e.id === id) || EMOTIONS[0];
 
@@ -107,8 +106,11 @@ const DeepDarkModal = ({ onClose }) => (
         fontSize:11.5, color:"#666", lineHeight:1.8,
         marginBottom:20, letterSpacing:"0.01em"
       }}>
-        Skip if you need to. Just remember:
-        someone here was hurt by a lack of kindness.
+        If you don't feel ready to hold that right now,
+        it's okay to skip. You don't owe anyone your capacity.
+        But if you do read on, carry this with you:
+        every person here was hurt by someone who simply
+        didn't choose to be kind.
       </p>
 
       <p style={{
@@ -116,8 +118,9 @@ const DeepDarkModal = ({ onClose }) => (
         fontSize:15, fontWeight:400, color:"#7B1A1A",
         lineHeight:1.7
       }}>
-        Choose kindness — even when it's hard.<br/>
-        Especially when it's hard.
+        We all have that choice, every single day.<br/>
+        Choose not to be the reason.<br/>
+        Lead a joyful life, the right way.
       </p>
     </div>
   </div>
@@ -144,7 +147,26 @@ const HomeIcon = ({ onClick }) => (
 export default function App() {
   const [screen, setScreen]     = useState("landing");
   const [confessions, setCfess] = useState(SEED);
+  const [loading, setLoading]   = useState(true);
   const [filter, setFilter]     = useState("all");
+
+  // Fetch confessions from Supabase on load
+  useEffect(() => {
+    const fetchConfessions = async () => {
+      const { data, error } = await supabase
+        .from("confessions")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data && data.length > 0) {
+        setCfess(data.map(c => ({
+          ...c,
+          reactions: c.reactions || {candle:0, wave:0, bloom:0, flame:0}
+        })));
+      }
+      setLoading(false);
+    };
+    fetchConfessions();
+  }, []);
   const [openCard, setOpenCard] = useState(null);
   const [reacted, setReacted]   = useState({});
   const [newText, setNewText]   = useState("");
@@ -164,24 +186,43 @@ export default function App() {
   };
 
   const filtered = filter === "all" ? confessions : confessions.filter(c => c.emotion === filter);
+  const display  = filtered.slice(0, 11);
+  const N        = display.length;
+
   const handleCardClick = (i) => { const card = filtered[i]; setOpenCard(card); setReadCards(prev => ({...prev, [card.id]: true})); };
 
-  const handleReact = (cardId, key) => {
+  const handleReact = async (cardId, key) => {
     if (reacted[cardId]) return;
+    const card = confessions.find(c => c.id === cardId);
+    const updatedReactions = {...card.reactions, [key]: (card.reactions[key]||0)+1};
     const updated = confessions.map(c => c.id === cardId
-      ? {...c, reactions: {...c.reactions, [key]: (c.reactions[key]||0)+1}} : c);
+      ? {...c, reactions: updatedReactions} : c);
     setCfess(updated);
     setReacted({...reacted, [cardId]: key});
     setOpenCard(updated.find(c => c.id === cardId));
+    await supabase
+      .from("confessions")
+      .update({ reactions: updatedReactions })
+      .eq("id", cardId);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!newText.trim() || !newEmotion) return;
-    const c = {id:`c${Date.now()}`, text:newText.trim(), emotion:newEmotion,
-               reactions:{candle:0,wave:0,bloom:0,flame:0}};
-    setCfess([c, ...confessions]);
+    const newConfession = {
+      text: newText.trim(),
+      emotion: newEmotion,
+      reactions: {candle:0, wave:0, bloom:0, flame:0}
+    };
+    const { data, error } = await supabase
+      .from("confessions")
+      .insert([newConfession])
+      .select()
+      .single();
+    if (!error && data) {
+      setCfess([data, ...confessions]);
+    }
     setNewText(""); setNewEmo(""); setSub(true);
-    // no auto-redirect — user chooses via CTAs
+    setTimeout(() => { setSub(false); setScreen("shelf"); }, 2200);
   };
 
   // 3D carousel — computed manually, no preserve-3d so clicks work
@@ -234,42 +275,6 @@ export default function App() {
           from { opacity:0; transform:translateY(24px) scale(0.97); }
           to   { opacity:1; transform:translateY(0) scale(1); }
         }
-        @keyframes floatUp {
-          0%   { transform: translateY(0px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
-        }
-        @keyframes petalWiggle {
-          0%   { transform: translateY(0px) rotate(0deg) translateX(0px); opacity:1; }
-          25%  { transform: translateY(-28vh) rotate(90deg) translateX(12px); opacity:1; }
-          50%  { transform: translateY(-55vh) rotate(200deg) translateX(-8px); opacity:0.8; }
-          75%  { transform: translateY(-80vh) rotate(300deg) translateX(14px); opacity:0.4; }
-          100% { transform: translateY(-110vh) rotate(400deg) translateX(-6px); opacity:0; }
-        }
-        @keyframes confessReveal {
-          0%   { opacity:0; transform: translateY(22px); }
-          100% { opacity:1; transform: translateY(0); }
-        }
-        @keyframes handPresent {
-          0%   { transform: perspective(400px) translateY(80px) scale(0.5) rotateX(20deg); opacity: 0; }
-          20%  { opacity: 1; }
-          55%  { transform: perspective(400px) translateY(-16px) scale(1.12) rotateX(-6deg); opacity: 1; }
-          72%  { transform: perspective(400px) translateY(6px) scale(0.97) rotateX(2deg); }
-          86%  { transform: perspective(400px) translateY(-4px) scale(1.03) rotateX(-1deg); }
-          100% { transform: perspective(400px) translateY(0px) scale(1) rotateX(0deg); opacity: 1; }
-        }
-        @keyframes handHold {
-          0%   { transform: perspective(400px) translateY(0px) rotate(0deg) rotateX(0deg); }
-          25%  { transform: perspective(400px) translateY(-9px) rotate(-3deg) rotateX(-3deg); }
-          50%  { transform: perspective(400px) translateY(-12px) rotate(0deg) rotateX(-4deg); }
-          75%  { transform: perspective(400px) translateY(-9px) rotate(3deg) rotateX(-3deg); }
-          100% { transform: perspective(400px) translateY(0px) rotate(0deg) rotateX(0deg); }
-        }
-        .hand-wrap    { perspective: 400px; perspective-origin: 50% 80%; }
-        .hand-present { animation: handPresent 1.1s cubic-bezier(.22,1.18,.36,1) forwards,
-                                   handHold 3.2s ease-in-out 1.2s infinite;
-                        transform-origin: bottom center; }
-        .petal { position:fixed; bottom:-20px; pointer-events:none; animation: petalWiggle 3s ease-in forwards; }
-        .confess-word { display:inline-block; animation: confessReveal 0.5s both; }
       `}</style>
 
       <div style={{minHeight:"100vh", background:"#fff", fontFamily:"'Playfair Display', serif"}}>
@@ -325,6 +330,14 @@ export default function App() {
               padding:"22px 36px", flexShrink:0
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
+              <h2 style={{
+                fontFamily:"'Playfair Display', serif",
+                fontSize:"clamp(20px,2.4vw,32px)", fontWeight:400,
+                color:"#1a1a1a", letterSpacing:"-0.01em",
+                position:"absolute", left:"50%", transform:"translateX(-50%)"
+              }}>
+                Teaaa!
+              </h2>
               <button onClick={() => setScreen("write")}
                 style={{
                   fontFamily:"'DM Mono', monospace", fontSize:11, fontWeight:300,
@@ -365,45 +378,12 @@ export default function App() {
                 };
                 rafRef.current = requestAnimationFrame(coast);
               }}
-              onWheel={e => {
-                e.preventDefault();
-                cancelAnimationFrame(rafRef.current);
-                const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
-                velRef.current = delta * 0.3;
-                rotYRef.current += delta * 0.3;
-                setRotY(rotYRef.current);
-                // coast after scroll stops
-                clearTimeout(window._wheelTimeout);
-                window._wheelTimeout = setTimeout(() => {
-                  const coast = () => {
-                    if (Math.abs(velRef.current) < 0.05) return;
-                    velRef.current *= 0.94;
-                    rotYRef.current += velRef.current;
-                    setRotY(rotYRef.current);
-                    rafRef.current = requestAnimationFrame(coast);
-                  };
-                  rafRef.current = requestAnimationFrame(coast);
-                }, 80);
-              }}
+              onMouseLeave={() => { mouseDownX.current = null; }}
             >
-              {/* Teaaa — sits inside carousel, above center */}
-              <div style={{
-                position:"absolute", bottom:"calc(50% + 70px + 120px)", left:"50%", transform:"translateX(-50%)",
-                textAlign:"center", pointerEvents:"none", zIndex:2
-              }}>
-                <h2 style={{
-                  fontFamily:"'Playfair Display', serif",
-                  fontSize:"clamp(22px,2.6vw,36px)", fontWeight:400,
-                  color:"#1a1a1a", letterSpacing:"-0.01em", whiteSpace:"nowrap"
-                }}>
-                  Teaaa!
-                </h2>
-              </div>
-
               <div style={{position:"absolute",bottom:12,left:"50%",transform:"translateX(-50%)",
                 fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:9,
                 color:"#bbb",letterSpacing:"0.12em",pointerEvents:"none",zIndex:1,whiteSpace:"nowrap"}}>
-                scroll to explore
+                click and drag to browse through confessions
               </div>
 
               {(() => {
@@ -455,7 +435,7 @@ export default function App() {
                           opacity,
                           transition:"background 0.4s ease, border 0.4s ease",
                         }}>
-<svg width="44" height="28" viewBox="0 0 22 14" fill="none">
+                          <svg width="52" height="34" viewBox="0 0 22 14" fill="none">
                             <path d="M11 7 C8 5 3 2 1 4 C-1 6 3 9 11 7Z" fill={isRead ? "#9B2A2A" : "white"} opacity="0.9"/>
                             <path d="M11 7 C14 5 19 2 21 4 C23 6 19 9 11 7Z" fill={isRead ? "#9B2A2A" : "white"} opacity="0.9"/>
                             <circle cx="11" cy="7" r="1.5" fill={isRead ? "#7B1A1A" : "white"}/>
@@ -579,7 +559,7 @@ export default function App() {
                 <div style={{padding:"44px 48px 36px", position:"relative"}}>
                   {/* Red bow at top center */}
                   <div style={{textAlign:"center", marginBottom:18}}>
-<svg width="40" height="26" viewBox="0 0 22 14" fill="none">
+                    <svg width="40" height="26" viewBox="0 0 22 14" fill="none">
                       <path d="M11 7 C8 5 3 2 1 4 C-1 6 3 9 11 7Z" fill="#9B2A2A" opacity="0.85"/>
                       <path d="M11 7 C14 5 19 2 21 4 C23 6 19 9 11 7Z" fill="#9B2A2A" opacity="0.85"/>
                       <circle cx="11" cy="7" r="1.5" fill="#7B1A1A"/>
@@ -675,92 +655,12 @@ export default function App() {
             </header>
             <div style={{maxWidth:480,margin:"0 auto",padding:"32px 28px 80px"}}>
               {submitted ? (
-                <div style={{textAlign:"center",paddingTop:60,position:"relative"}}>
-                  {/* floating petals */}
-                  {[...Array(14)].map((_,i) => {
-                    const colors = ["#9B2A2A","#C47A7A","#FAF7F0","#d9cfc0","#9B2A2A","#e8c4b8"];
-                    const shapes = ["●","✦","♥","✿","◆","·"];
-                    const size = 8 + Math.random() * 10;
-                    const left = 5 + (i / 13) * 90;
-                    const delay = i * 0.15;
-                    const dur = 2.2 + Math.random() * 1.4;
-                    return (
-                      <span key={i} className="petal" style={{
-                        left:`${left}%`,
-                        fontSize:size,
-                        color: colors[i % colors.length],
-                        animationDelay:`${delay}s`,
-                        animationDuration:`${dur}s`,
-                      }}>{shapes[i % shapes.length]}</span>
-                    );
-                  })}
-
-                  {/* pixel flower dancing — exact same as landing page */}
-                  <div className="hand-wrap" style={{display:"flex", justifyContent:"center", marginBottom:20}}>
-                    <div className="hand-present" style={{transformOrigin:"center bottom"}}>
-                      <PixelFlower size={96} />
-                    </div>
-                  </div>
-
-                  {/* "left behind." word by word */}
-                  <p style={{fontSize:34,color:"#1a1a1a",marginBottom:14,fontWeight:400,letterSpacing:"-0.01em"}}>
-                    {"left behind.".split(" ").map((w,i) => (
-                      <span key={i} className="confess-word" style={{animationDelay:`${0.2 + i*0.18}s`, marginRight:"0.25em"}}>
-                        {w}
-                      </span>
-                    ))}
-                  </p>
-
-                  {/* subtitle fade in */}
-                  <p style={{
-                    fontFamily:"'DM Mono',monospace", fontWeight:300, fontSize:11,
-                    color:"#bbb", letterSpacing:"0.08em",
-                    animation:"confessReveal 0.6s 0.7s both"
-                  }}>
+                <div style={{textAlign:"center",paddingTop:80}}>
+                  <p style={{fontSize:32,color:"#1a1a1a",marginBottom:12,fontWeight:400}}>left behind.</p>
+                  <p style={{fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:11,
+                    color:"#bbb",letterSpacing:"0.06em"}}>
                     your confession joins the library
                   </p>
-
-                  {/* CTAs */}
-                  <div style={{
-                    marginTop:40, display:"flex", flexDirection:"column",
-                    alignItems:"center", gap:14,
-                    animation:"confessReveal 0.6s 1s both"
-                  }}>
-                    {/* Primary — matches landing page exactly */}
-                    <button
-                      onClick={() => { setSub(false); setScreen("shelf"); }}
-                      style={{
-                        fontFamily:"'DM Mono',monospace", fontWeight:400,
-                        fontSize:13, letterSpacing:"0.08em",
-                        background:"#1a1a1a", color:"#fff",
-                        padding:"14px 52px", borderRadius:3, border:"none",
-                        cursor:"pointer", transition:"background .18s",
-                        width:240
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background="#333"}
-                      onMouseLeave={e => e.currentTarget.style.background="#1a1a1a"}
-                    >
-                      Explore Confessions
-                    </button>
-
-                    {/* Secondary — ghost version of the same style */}
-                    <button
-                      onClick={() => { setSub(false); setNewText(""); setNewEmo(""); }}
-                      style={{
-                        fontFamily:"'DM Mono',monospace", fontWeight:400,
-                        fontSize:13, letterSpacing:"0.08em",
-                        background:"#fff", color:"#1a1a1a",
-                        padding:"14px 52px", borderRadius:3,
-                        border:"1.5px solid #1a1a1a",
-                        cursor:"pointer", transition:"background .18s",
-                        width:240
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background="#f0f0f0"}
-                      onMouseLeave={e => e.currentTarget.style.background="#fff"}
-                    >
-                      Add Another
-                    </button>
-                  </div>
                 </div>
               ) : (
                 <>
