@@ -355,7 +355,7 @@ export default function App() {
             {/* Header */}
             <header style={{
               display:"flex", alignItems:"center", justifyContent:"space-between",
-              padding:"22px 36px", flexShrink:0
+              padding:"14px 36px", flexShrink:0
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
               <h2 style={{
@@ -511,7 +511,7 @@ onTouchEnd={() => {
             </div>
 
             {/* Filter tags */}
-            <div style={{padding:"16px 36px 24px", flexShrink:0}}>
+            <div style={{padding:"4px 36px 8px", flexShrink:0}}>
               <div style={{position:"relative"}}>
               <div style={{position:"absolute",right:0,top:0,bottom:0,width:48,background:"linear-gradient(to right, transparent, #fff)",pointerEvents:"none",zIndex:1}}/>
               <div className="prow" style={{justifyContent:"center"}}>
