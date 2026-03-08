@@ -146,7 +146,7 @@ const HomeIcon = ({ onClick }) => (
 
 export default function App() {
   const [screen, setScreen]     = useState("landing");
-  const [confessions, setCfess] = useState(SEED);
+  const [confessions, setCfess] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [filter, setFilter]     = useState("all");
 
