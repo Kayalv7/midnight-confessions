@@ -356,10 +356,17 @@ export default function App() {
             {/* Header */}
             <header style={{
               display:"flex", alignItems:"center", justifyContent:"space-between",
-              padding:"10px clamp(16px,3vw,36px)", flexShrink:0
+              padding:"10px clamp(16px,3vw,36px)", flexShrink:0, position:"relative"
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
-
+              <h2 style={{
+                fontFamily:"'Playfair Display', serif",
+                fontSize:"clamp(20px,2.4vw,32px)", fontWeight:400,
+                color:"#1a1a1a", letterSpacing:"-0.01em",
+                position:"absolute", left:"50%", transform:"translateX(-50%)"
+              }}>
+                Teaaa!
+              </h2>
               <button onClick={() => setScreen("write")}
                 style={{
                   fontFamily:"'DM Mono', monospace", fontSize:11, fontWeight:300,
@@ -370,22 +377,9 @@ export default function App() {
               </button>
             </header>
 
-            {/* flex:1 wrapper — vertically centers title + carousel + filters */}
-            <div style={{flex:1, display:"flex", flexDirection:"column", justifyContent:"center", gap:"56px", paddingBottom:"80px"}}>
-
-            {/* Title */}
-            <h2 style={{
-              fontFamily:"'Playfair Display', serif",
-              fontSize:"clamp(20px,2.4vw,32px)", fontWeight:400,
-              color:"#1a1a1a", letterSpacing:"-0.01em",
-              textAlign:"center", marginBottom:"0"
-            }}>
-              Teaaa!
-            </h2>
-
             {/* 3D carousel — math computed, no preserve-3d so clicks work */}
             <div
-              style={{height:"220px", position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
+              style={{height:"220px", marginTop:"80px", position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
               onMouseDown={e => {
                 cancelAnimationFrame(rafRef.current);
                 mouseDownX.current = e.clientX;
@@ -523,7 +517,7 @@ onTouchEnd={() => {
             </p>
 
             {/* Filter tags */}
-            <div style={{padding:"2px clamp(16px,3vw,36px) 10px", flexShrink:0}}>
+            <div style={{padding:"2px clamp(16px,3vw,36px) 10px", marginBottom:"40px", flexShrink:0}}>
               <div style={{position:"relative"}}>
               <div style={{position:"absolute",right:0,top:0,bottom:0,width:48,background:"linear-gradient(to right, transparent, #fff)",pointerEvents:"none",zIndex:1}}/>
               <div style={{display:"flex", gap:"6px", flexWrap:"wrap", justifyContent:"center"}}>
@@ -553,7 +547,6 @@ onTouchEnd={() => {
               </div>
             </div>
           </div>
-            </div>{/* end flex:1 wrapper */}
           </div>
         )}
 
