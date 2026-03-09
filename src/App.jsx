@@ -513,6 +513,15 @@ onTouchEnd={() => {
               })()}
             </div>
 
+            {/* Hint */}
+            <p style={{
+              fontFamily:"'DM Mono',monospace", fontWeight:300, fontSize:10,
+              color:"#1a1a1a", letterSpacing:"0.1em", textAlign:"center",
+              pointerEvents:"none", margin:"0"
+            }}>
+              scroll left / right to explore
+            </p>
+
             {/* Filter tags */}
             <div style={{padding:"2px clamp(16px,3vw,36px) 10px", flexShrink:0}}>
               <div style={{position:"relative"}}>
