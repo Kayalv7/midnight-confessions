@@ -350,7 +350,7 @@ export default function App() {
 
         {/* ══ SHELF ══ */}
         {screen === "shelf" && (
-          <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
+          <div style={{display:"flex", flexDirection:"column", minHeight:"100vh"}}>
 
             {/* Header */}
             <header style={{
@@ -378,7 +378,7 @@ export default function App() {
 
             {/* 3D carousel — math computed, no preserve-3d so clicks work */}
             <div
-              style={{flex:1, minHeight:0, position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
+              style={{height:"220px", position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
               onMouseDown={e => {
                 cancelAnimationFrame(rafRef.current);
                 mouseDownX.current = e.clientX;
