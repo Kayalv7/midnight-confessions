@@ -446,11 +446,7 @@ onTouchEnd={() => {
                 setRotY(rotYRef.current);
                 }}
             >
-              <div style={{position:"absolute",bottom:6,left:"50%",transform:"translateX(-50%)",
-                fontFamily:"'DM Mono',monospace",fontWeight:300,fontSize:9,
-                color:"#bbb",letterSpacing:"0.12em",pointerEvents:"none",zIndex:1,whiteSpace:"nowrap"}}>
-                click and drag to browse through confessions
-              </div>
+
 
               {(() => {
                 const N         = filtered.length;
@@ -520,7 +516,7 @@ onTouchEnd={() => {
             <div style={{padding:"2px clamp(16px,3vw,36px) 10px", flexShrink:0}}>
               <div style={{position:"relative"}}>
               <div style={{position:"absolute",right:0,top:0,bottom:0,width:48,background:"linear-gradient(to right, transparent, #fff)",pointerEvents:"none",zIndex:1}}/>
-              <div className="prow" style={{justifyContent:"center"}}>
+              <div style={{display:"flex", gap:"6px", flexWrap:"wrap", justifyContent:"center"}}>
                 {[{id:"all", label:"All"}, ...EMOTIONS].map(e => {
                   const active = filter === e.id;
                   return (
@@ -532,8 +528,9 @@ onTouchEnd={() => {
                         borderRadius:3,
                         fontFamily:"'DM Mono', monospace", fontWeight:300,
                         background: active ? "#1a1a1a" : "#fff",
-                        border:`1px solid ${active ? "#1a1a1a" : "#d0d0d0"}`,
-                        color: active ? "#fff" : "#666",
+                        border:`1px solid ${active ? "#1a1a1a" : e.id === "deepdark" ? "#7B1A1A" : "#d0d0d0"}`,
+                        color: active ? "#fff" : e.id === "deepdark" ? "#7B1A1A" : "#666",
+                        boxShadow: e.id === "deepdark" ? "0 0 8px 2px rgba(123,26,26,0.25)" : "none",
                         whiteSpace:"nowrap", transition:"all .15s"
                       }}
                       onMouseEnter={ev => { if(!active) { ev.currentTarget.style.borderColor="#888"; ev.currentTarget.style.color="#333"; }}}
