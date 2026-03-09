@@ -350,12 +350,12 @@ export default function App() {
 
         {/* ══ SHELF ══ */}
         {screen === "shelf" && (
-          <div style={{display:"flex", flexDirection:"column", minHeight:"100vh"}}>
+          <div style={{display:"flex", flexDirection:"column", height:"100vh", overflow:"hidden"}}>
 
             {/* Header */}
             <header style={{
               display:"flex", alignItems:"center", justifyContent:"space-between",
-              padding:"10px 36px", flexShrink:0
+              padding:"10px clamp(16px,3vw,36px)", flexShrink:0
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
               <h2 style={{
@@ -378,7 +378,7 @@ export default function App() {
 
             {/* 3D carousel — math computed, no preserve-3d so clicks work */}
             <div
-              style={{height:"44vh", position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
+              style={{flex:1, minHeight:0, position:"relative", overflow:"hidden", userSelect:"none", cursor:"grab", touchAction:"none"}}
               onMouseDown={e => {
                 cancelAnimationFrame(rafRef.current);
                 mouseDownX.current = e.clientX;
@@ -511,7 +511,7 @@ onTouchEnd={() => {
             </div>
 
             {/* Filter tags */}
-            <div style={{padding:"2px 36px 6px", flexShrink:0}}>
+            <div style={{padding:"2px clamp(16px,3vw,36px) 10px", flexShrink:0}}>
               <div style={{position:"relative"}}>
               <div style={{position:"absolute",right:0,top:0,bottom:0,width:48,background:"linear-gradient(to right, transparent, #fff)",pointerEvents:"none",zIndex:1}}/>
               <div className="prow" style={{justifyContent:"center"}}>
