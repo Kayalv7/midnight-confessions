@@ -358,14 +358,7 @@ export default function App() {
               padding:"10px clamp(16px,3vw,36px)", flexShrink:0
             }}>
               <HomeIcon onClick={() => setScreen("landing")} />
-              <h2 style={{
-                fontFamily:"'Playfair Display', serif",
-                fontSize:"clamp(20px,2.4vw,32px)", fontWeight:400,
-                color:"#1a1a1a", letterSpacing:"-0.01em",
-                position:"absolute", left:"50%", transform:"translateX(-50%)"
-              }}>
-                Teaaa!
-              </h2>
+
               <button onClick={() => setScreen("write")}
                 style={{
                   fontFamily:"'DM Mono', monospace", fontSize:11, fontWeight:300,
@@ -375,6 +368,19 @@ export default function App() {
                 Add confession
               </button>
             </header>
+
+            {/* flex:1 wrapper — vertically centers title + carousel + filters */}
+            <div style={{flex:1, display:"flex", flexDirection:"column", justifyContent:"center", gap:"56px", paddingBottom:"80px"}}>
+
+            {/* Title */}
+            <h2 style={{
+              fontFamily:"'Playfair Display', serif",
+              fontSize:"clamp(20px,2.4vw,32px)", fontWeight:400,
+              color:"#1a1a1a", letterSpacing:"-0.01em",
+              textAlign:"center", marginBottom:"0"
+            }}>
+              Teaaa!
+            </h2>
 
             {/* 3D carousel — math computed, no preserve-3d so clicks work */}
             <div
@@ -540,7 +546,8 @@ onTouchEnd={() => {
               </div>
             </div>
           </div>
-        </div>
+            </div>{/* end flex:1 wrapper */}
+          </div>
         )}
 
         {/* ══ OPEN CARD MODAL ══ */}
